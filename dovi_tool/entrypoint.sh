@@ -3,6 +3,9 @@
 set -eo pipefail
 IFS=$(echo -en "\n\b")
 
+DOVI_TRACK=${DOVI_TRACK:=0}
+VIDEO_TRACK=${VIDEO_TRACK:=0}
+
 # Sanity check
 if ! command -v mediainfo >/dev/null 2>&1; then
 	echo "mediainfo could not be found"
@@ -38,7 +41,7 @@ fi
 # Cleanup function to remove any leftover files
 cleanup() {
 	echo "Cleaning up working files..."
-	rm -f "${1%.*}.hevc" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy" "${1%.*}.dv8.hevc" "${1%.*}.rpu.bin"
+	rm -f "${1%.*}.hevc" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy" "${1%.*}.bl.hevc" "${1%.*}.dv8.hevc" "${1%.*}.rpu.bin"
 }
 
 # Get DV profile information using mediainfo
@@ -59,12 +62,22 @@ get_dvhe_profile() {
 extract_mkv() {
 	echo "Extracting $1..."
 	echo "------------------"
-	echo "mkvextract $1 tracks 0:${1%.*}.hevc"
-	echo "------------------"
-	if ! mkvextract "$1" tracks 0:"${1%.*}.hevc"; then
-		echo "Failed to extract $1"
-		cleanup "$1"
-		exit 1
+	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
+		echo "mkvextract $1 tracks $DOVI_TRACK:${1%.*}.hevc $VIDEO_TRACK:${1%.*}.bl.hevc"
+		echo "------------------"
+		if ! mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
+			echo "Failed to extract $1"
+			cleanup "$1"
+			exit 1
+		fi
+	else
+		echo "mkvextract $1 tracks $VIDEO_TRACK:${1%.*}.hevc"
+		echo "------------------"
+		if ! mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.hevc"; then
+			echo "Failed to extract $1"
+			cleanup "$1"
+			exit 1
+		fi
 	fi
 }
 
@@ -113,6 +126,19 @@ demux_file() {
 }
 
 remux_file() {
+	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
+		echo "Injecting RPU into BL..."
+		echo "------------------"
+		echo "dovi_tool inject-rpu -i ${1%.*}.bl.hevc --rpu-in ${1%.*}.rpu.bin -o ${1%.*}.dv8.hevc"
+		echo "------------------"
+		if ! dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.rpu.bin" -o "${1%.*}.dv8.hevc"; then
+			echo "Failed to inject RPU into BL"
+			cleanup "$1"
+			exit 1
+		else
+			rm -f "${1%.*}.bl.hevc"
+		fi
+	fi
 	echo "Remuxing $1..."
 	echo "------------------"
 	echo "mkvmerge -o ${1%.*}.mkv.tmp -D $1 ${1%.*}.dv8.hevc --track-order 1:0"
