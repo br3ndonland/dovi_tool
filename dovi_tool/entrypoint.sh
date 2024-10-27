@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
 set -eo
-IFS=$(echo -en "\n\b")
 
 DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
