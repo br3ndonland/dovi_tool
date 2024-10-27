@@ -24,6 +24,12 @@ if [ ! -f "$1" ]; then
 	exit 1
 fi
 
+# Helper function to print each command
+print_and_run() {
+	printf "\n------------------\n%s\n------------------\n" "$*" >&2
+	"$@"
+}
+
 # Cleanup function to remove any leftover files
 cleanup() {
 	echo "Cleaning up working files..."
@@ -33,10 +39,7 @@ cleanup() {
 # Get DV profile information using mediainfo
 get_dvhe_profile() {
 	echo "Checking for Dolby Vision ${2} profile..."
-	echo "------------------"
-	echo "mediainfo --Output=JSON $1 | jq '.media.track[].HDR_Format_Profile' | grep ${2}"
-	echo "------------------"
-	DVHE_PROFILE=$(mediainfo --Output=JSON "$1" | jq '.media.track[].HDR_Format_Profile' | grep "${2}" || true)
+	DVHE_PROFILE=$(print_and_run mediainfo --Output=JSON "$1" | jq '.media.track[].HDR_Format_Profile' | grep "${2}" || true)
 	if [ -n "${DVHE_PROFILE}" ]; then
 		echo "DVHE ${2} profile found"
 	else
@@ -47,19 +50,14 @@ get_dvhe_profile() {
 
 extract_mkv() {
 	echo "Extracting $1..."
-	echo "------------------"
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
-		echo "mkvextract $1 tracks $DOVI_TRACK:${1%.*}.hevc $VIDEO_TRACK:${1%.*}.bl.hevc"
-		echo "------------------"
-		if ! mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
+		if ! print_and_run mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
 			echo "Failed to extract $1"
 			cleanup "$1"
 			exit 1
 		fi
 	else
-		echo "mkvextract $1 tracks $VIDEO_TRACK:${1%.*}.hevc"
-		echo "------------------"
-		if ! mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.hevc"; then
+		if ! print_and_run mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.hevc"; then
 			echo "Failed to extract $1"
 			cleanup "$1"
 			exit 1
@@ -69,10 +67,7 @@ extract_mkv() {
 
 convert_mkv() {
 	echo "Converting $1..."
-	echo "------------------"
-	echo "dovi_tool --edit-config /config/dovi_tool.config.json convert --discard ${1%.*}.hevc -o ${1%.*}.dv8.hevc"
-	echo "------------------"
-	if ! dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.hevc" -o "${1%.*}.dv8.hevc"; then
+	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.hevc" -o "${1%.*}.dv8.hevc"; then
 		echo "Failed to convert $1"
 		cleanup "$1"
 		exit 1
@@ -81,10 +76,7 @@ convert_mkv() {
 
 extract_rpu() {
 	echo "Extracting RPU from ${1%.*}.dv8.hevc..."
-	echo "------------------"
-	echo "dovi_tool extract-rpu ${1%.*}.dv8.hevc -o ${1%.*}.rpu.bin"
-	echo "------------------"
-	if ! dovi_tool extract-rpu "${1%.*}.dv8.hevc" -o "${1%.*}.rpu.bin"; then
+	if ! print_and_run dovi_tool extract-rpu "${1%.*}.dv8.hevc" -o "${1%.*}.rpu.bin"; then
 		echo "Failed to extract RPU from ${1%.*}.dv8.hevc"
 		cleanup "$1"
 		exit 1
@@ -93,10 +85,7 @@ extract_rpu() {
 
 create_plot() {
 	echo "Creating plot from RPU..."
-	echo "------------------"
-	echo "dovi_tool plot ${1%.*}.rpu.bin -o ${1%.*}.l1_plot.png"
-	echo "------------------"
-	if ! dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.l1_plot.png"; then
+	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.l1_plot.png"; then
 		echo "Failed to create plot from RPU"
 		cleanup "$1"
 		exit 1
@@ -114,10 +103,7 @@ demux_file() {
 remux_file() {
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
 		echo "Injecting RPU into BL..."
-		echo "------------------"
-		echo "dovi_tool inject-rpu -i ${1%.*}.bl.hevc --rpu-in ${1%.*}.rpu.bin -o ${1%.*}.dv8.hevc"
-		echo "------------------"
-		if ! dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.rpu.bin" -o "${1%.*}.dv8.hevc"; then
+		if ! print_and_run dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.rpu.bin" -o "${1%.*}.dv8.hevc"; then
 			echo "Failed to inject RPU into BL"
 			cleanup "$1"
 			exit 1
@@ -126,10 +112,7 @@ remux_file() {
 		fi
 	fi
 	echo "Remuxing $1..."
-	echo "------------------"
-	echo "mkvmerge -o ${1%.*}.mkv.tmp -D $1 ${1%.*}.dv8.hevc --track-order 1:0"
-	echo "------------------"
-	if ! mkvmerge -o "${1%.*}.mkv.tmp" -D "$1" "${1%.*}.dv8.hevc" --track-order 1:0; then
+	if ! print_and_run mkvmerge -o "${1%.*}.mkv.tmp" -D "$1" "${1%.*}.dv8.hevc" --track-order 1:0; then
 		echo "Failed to remux $1"
 		cleanup "$1"
 		exit 1
