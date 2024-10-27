@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-set -eo pipefail
+set -eo
 IFS=$(echo -en "\n\b")
 
 DOVI_TRACK=${DOVI_TRACK:=0}
