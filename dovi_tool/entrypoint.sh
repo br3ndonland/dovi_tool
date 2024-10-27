@@ -6,25 +6,12 @@ DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
 
 # Sanity check
-if ! command -v mediainfo >/dev/null 2>&1; then
-	echo "mediainfo could not be found"
-	exit 1
-fi
-
-if ! command -v dovi_tool >/dev/null 2>&1; then
-	echo "dovi_tool could not be found"
-	exit 1
-fi
-
-if ! command -v mkvmerge >/dev/null 2>&1; then
-	echo "mkvmerge could not be found"
-	exit 1
-fi
-
-if ! command -v jq >/dev/null 2>&1; then
-	echo "jq could not be found"
-	exit 1
-fi
+for command in mediainfo dovi_tool mkvmerge jq; do
+	if ! command -v $command >/dev/null 2>&1; then
+		echo "$command could not be found"
+		exit 1
+	fi
+done
 
 if [ -z "${1+x}" ] || [ -z "${2+x}" ]; then
 	echo "Usage: $0 <filename> <profile>"
