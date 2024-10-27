@@ -167,7 +167,6 @@ overwrite_file() {
 }
 
 main() {
-	trap 'echo "Error: $0:$LINENO: Command \`$BASH_COMMAND\` on line $LINENO failed with exit code $?" >&2; cleanup $1' ERR
 	get_dvhe_profile "$1" "$2"
 	demux_file "$1"
 	remux_file "$1"
