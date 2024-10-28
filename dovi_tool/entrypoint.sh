@@ -33,7 +33,7 @@ print_and_run() {
 # Cleanup function to remove any leftover files
 cleanup() {
 	echo "Cleaning up working files..."
-	rm -f "${1%.*}.hevc" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy" "${1%.*}.bl.hevc" "${1%.*}.dv8.hevc" "${1%.*}.rpu.bin"
+	rm -f "${1%.*}.hevc" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy" "${1%.*}.bl.hevc" "${1%.*}.dv8.hevc" "${1%/*}/"*".rpu.bin"
 }
 
 # Get DV profile information using mediainfo
@@ -75,7 +75,13 @@ convert_mkv() {
 }
 
 extract_rpu() {
-	echo "Extracting RPU from ${1%.*}.dv8.hevc..."
+	echo "Extracting original RPU from ${1%.*}.hevc..."
+	if ! print_and_run dovi_tool extract-rpu "${1%.*}.hevc" -o "${1%.*}.dv7.rpu.bin"; then
+		echo "Failed to extract RPU from ${1%.*}.hevc"
+		cleanup "$1"
+		exit 1
+	fi
+	echo "Extracting converted RPU from ${1%.*}.dv8.hevc..."
 	if ! print_and_run dovi_tool extract-rpu "${1%.*}.dv8.hevc" -o "${1%.*}.rpu.bin"; then
 		echo "Failed to extract RPU from ${1%.*}.dv8.hevc"
 		cleanup "$1"
@@ -83,8 +89,25 @@ extract_rpu() {
 	fi
 }
 
+summarize_rpu() {
+	for rpu in "${1%/*}/"*".rpu.bin"; do
+		echo "Summarizing RPU info from $rpu..."
+		if ! print_and_run dovi_tool info -i "$rpu" --summary; then
+			echo "Failed to summarize RPU info from $rpu"
+			cleanup "$1"
+			exit 1
+		fi
+	done
+}
+
 create_plot() {
-	echo "Creating plot from RPU..."
+	echo "Creating plot from original RPU..."
+	if ! print_and_run dovi_tool plot "${1%.*}.dv7.rpu.bin" -o "${1%.*}.dv7.l1_plot.png"; then
+		echo "Failed to create plot from RPU"
+		cleanup "$1"
+		exit 1
+	fi
+	echo "Creating plot from converted RPU..."
 	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.l1_plot.png"; then
 		echo "Failed to create plot from RPU"
 		cleanup "$1"
@@ -97,6 +120,7 @@ demux_file() {
 	extract_mkv "$1"
 	convert_mkv "$1"
 	extract_rpu "$1"
+	summarize_rpu "$1"
 	create_plot "$1"
 }
 
