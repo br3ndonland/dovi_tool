@@ -8,19 +8,18 @@ VIDEO_TRACK=${VIDEO_TRACK:=0}
 # Sanity check
 for command in mediainfo dovi_tool mkvmerge jq; do
 	if ! command -v $command >/dev/null 2>&1; then
-		echo "$command could not be found"
+		printf "\n%s could not be found\n" $command
 		exit 1
 	fi
 done
 
 if [ -z "${1+x}" ] || [ -z "${2+x}" ]; then
-	echo "Usage: $0 <filename> <profile>"
-	echo "Valid profiles: dvhe.07"
+	printf "\nUsage: %s <filename> <profile>\nValid profiles: dvhe.07\n" "$0"
 	exit 1
 fi
 
 if [ ! -f "$1" ]; then
-	echo "$1 is not a file"
+	printf "\n%s is not a file\n" "$1"
 	exit 1
 fi
 
@@ -32,33 +31,33 @@ print_and_run() {
 
 # Cleanup function to remove any leftover files
 cleanup() {
-	echo "Cleaning up working files..."
+	printf "\n\nCleaning up working files...\n"
 	rm -f "${1%.*}.hevc" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy" "${1%.*}.bl.hevc" "${1%.*}.dv8.hevc" "${1%/*}/"*".rpu.bin"
 }
 
 # Get DV profile information using mediainfo
 get_dvhe_profile() {
-	echo "Checking for Dolby Vision ${2} profile..."
+	printf "\n\nChecking for Dolby Vision %s profile...\n" "$2"
 	DVHE_PROFILE=$(print_and_run mediainfo --Output=JSON "$1" | jq '.media.track[].HDR_Format_Profile' | grep "${2}" || true)
 	if [ -n "${DVHE_PROFILE}" ]; then
-		echo "DVHE ${2} profile found"
+		printf "\nDVHE %s profile found\n" "$2"
 	else
-		echo "DVHE ${2} profile not found"
+		printf "\nDVHE %s profile not found\n" "$2"
 		exit 0
 	fi
 }
 
 extract_mkv() {
-	echo "Extracting $1..."
+	printf "\n\nExtracting %s...\n" "$1"
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
 		if ! print_and_run mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
-			echo "Failed to extract $1"
+			printf "\nFailed to extract %s\n" "$1"
 			cleanup "$1"
 			exit 1
 		fi
 	else
 		if ! print_and_run mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.hevc"; then
-			echo "Failed to extract $1"
+			printf "\nFailed to extract %s\n" "$1"
 			cleanup "$1"
 			exit 1
 		fi
@@ -66,24 +65,24 @@ extract_mkv() {
 }
 
 convert_mkv() {
-	echo "Converting $1..."
+	printf "\n\nConverting %s...\n" "$1"
 	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.hevc" -o "${1%.*}.dv8.hevc"; then
-		echo "Failed to convert $1"
+		printf "\nFailed to convert %s\n" "$1"
 		cleanup "$1"
 		exit 1
 	fi
 }
 
 extract_rpu() {
-	echo "Extracting original RPU from ${1%.*}.hevc..."
+	printf "\n\nExtracting original RPU from %s...\n" "${1%.*}.hevc"
 	if ! print_and_run dovi_tool extract-rpu "${1%.*}.hevc" -o "${1%.*}.dv7.rpu.bin"; then
-		echo "Failed to extract RPU from ${1%.*}.hevc"
+		printf "\nFailed to extract RPU from %s\n" "${1%.*}.hevc"
 		cleanup "$1"
 		exit 1
 	fi
-	echo "Extracting converted RPU from ${1%.*}.dv8.hevc..."
+	printf "\n\nExtracting converted RPU from %s...\n" "${1%.*}.dv8.hevc"
 	if ! print_and_run dovi_tool extract-rpu "${1%.*}.dv8.hevc" -o "${1%.*}.rpu.bin"; then
-		echo "Failed to extract RPU from ${1%.*}.dv8.hevc"
+		printf "\nFailed to extract RPU from %s\n" "${1%.*}.dv8.hevc"
 		cleanup "$1"
 		exit 1
 	fi
@@ -91,9 +90,9 @@ extract_rpu() {
 
 summarize_rpu() {
 	for rpu in "${1%/*}/"*".rpu.bin"; do
-		echo "Summarizing RPU info from $rpu..."
+		printf "\n\nSummarizing RPU info from %s...\n" "$rpu"
 		if ! print_and_run dovi_tool info -i "$rpu" --summary; then
-			echo "Failed to summarize RPU info from $rpu"
+			printf "\nFailed to summarize RPU info from %s\n" "$rpu"
 			cleanup "$1"
 			exit 1
 		fi
@@ -101,22 +100,22 @@ summarize_rpu() {
 }
 
 create_plot() {
-	echo "Creating plot from original RPU..."
+	printf "\n\nCreating plot from original RPU...\n"
 	if ! print_and_run dovi_tool plot "${1%.*}.dv7.rpu.bin" -o "${1%.*}.dv7.l1_plot.png"; then
-		echo "Failed to create plot from RPU"
+		printf "\nFailed to create plot from RPU\n"
 		cleanup "$1"
 		exit 1
 	fi
-	echo "Creating plot from converted RPU..."
+	printf "\n\nCreating plot from converted RPU...\n"
 	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.l1_plot.png"; then
-		echo "Failed to create plot from RPU"
+		printf "\nFailed to create plot from RPU\n"
 		cleanup "$1"
 		exit 1
 	fi
 }
 
 demux_file() {
-	echo "Demuxing $1..."
+	printf "\n\nDemuxing %s...\n" "$1"
 	extract_mkv "$1"
 	convert_mkv "$1"
 	extract_rpu "$1"
@@ -126,18 +125,18 @@ demux_file() {
 
 remux_file() {
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
-		echo "Injecting RPU into BL..."
+		printf "\n\nInjecting RPU into BL...\n"
 		if ! print_and_run dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.rpu.bin" -o "${1%.*}.dv8.hevc"; then
-			echo "Failed to inject RPU into BL"
+			printf "\nFailed to inject RPU into BL\n"
 			cleanup "$1"
 			exit 1
 		else
 			rm -f "${1%.*}.bl.hevc"
 		fi
 	fi
-	echo "Remuxing $1..."
+	printf "\n\nRemuxing %s...\n" "$1"
 	if ! print_and_run mkvmerge -o "${1%.*}.mkv.tmp" -D "$1" "${1%.*}.dv8.hevc" --track-order 1:0; then
-		echo "Failed to remux $1"
+		printf "\nFailed to remux %s\n" "$1"
 		cleanup "$1"
 		exit 1
 	fi
@@ -147,27 +146,27 @@ remux_file() {
 overwrite_file() {
 	# Create a symbolic link (symlink) to the temporary file
 	if ! ln "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy"; then
-		echo "Failed to copy ${1%.*}.mkv.tmp to ${1%.*}.mkv.copy"
+		printf "\nFailed to copy %s to %s\n" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy"
 		cleanup "$1"
 		exit 1
 	fi
 
 	# Rename the symlink to the original filename, effectively overwriting the original file
 	if ! mv "${1%.*}.mkv.copy" "$1"; then
-		echo "Failed to overwrite $1"
+		printf "\nFailed to overwrite %s\n" "$1"
 		cleanup "$1"
 		exit 1
 	fi
 
 	# Remove the temporary file
 	if ! rm "${1%.*}.mkv.tmp"; then
-		echo "Failed to remove ${1%.*}.mkv.tmp"
+		printf "\nFailed to remove %s\n" "${1%.*}.mkv.tmp"
 		cleanup "$1"
 		exit 1
 	fi
 
 	if [ -f "${1%.*}.mkv.tmp" ]; then
-		echo "Failed to remove ${1%.*}.mkv.tmp"
+		printf "\nFailed to remove %s\n" "${1%.*}.mkv.tmp"
 		cleanup "$1"
 		exit 1
 	fi
