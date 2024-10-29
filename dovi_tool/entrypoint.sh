@@ -2,6 +2,7 @@
 
 set -eo
 
+CONVERT_FEL=${CONVERT_FEL:=1}
 DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
 
@@ -91,10 +92,17 @@ extract_rpu() {
 summarize_rpu() {
 	for rpu in "${1%/*}/"*".rpu.bin"; do
 		printf "\n\nSummarizing RPU info from %s...\n" "$rpu"
-		if ! print_and_run dovi_tool info -i "$rpu" --summary; then
+		if ! rpu_summary=$(print_and_run dovi_tool info -i "$rpu" --summary); then
 			printf "\nFailed to summarize RPU info from %s\n" "$rpu"
 			cleanup "$1"
 			exit 1
+		else
+			printf "%s" "$rpu_summary\n"
+			if printf "%s" "$rpu_summary" | grep "FEL" && [ "$CONVERT_FEL" -eq 0 ]; then
+				printf "\nFull Enhancement Layer (FEL) detected in %s.\nExiting.\n" "$rpu"
+				cleanup "$1"
+				exit 1
+			fi
 		fi
 	done
 }
