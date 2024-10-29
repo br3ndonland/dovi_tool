@@ -15,6 +15,8 @@ The Docker container will run the [`entrypoint.sh`](./dovi_tool/entrypoint.sh) s
 
 **The original file will be overwritten after the conversion process is complete.**
 
+Although the converted file will be the same size or smaller than the source file, the conversion process will temporarily require additional hard disk space. **It is recommended to have free hard disk space equal to 4x the size of the source file.** This allows space for the original `.mkv`, the extracted `.hevc`, the converted `.dv8.hevc`, and the remuxed `.mkv.tmp`.
+
 Supported [environment variables](https://docs.docker.com/reference/cli/docker/container/run/#env):
 
 - `DOVI_TRACK` (`0` or `>=1`, default `0`): Dolby Vision track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
