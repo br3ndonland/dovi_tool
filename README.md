@@ -35,4 +35,10 @@ Profile 8 only includes BL+RPU and does not include the EL. Converting a MEL fro
 
 It is therefore helpful to know if a Profile 7 source is MEL or FEL. MediaInfo does not provide this information because it might require parsing the RPU, which is something MediaInfo does not do by default ([MediaArea/MediaInfo#721](https://github.com/MediaArea/MediaInfo/issues/721)).
 
-To identify the EL type, the `entrypoint.sh` script extracts not only the converted RPU, but also the original Profile 7 RPU from the un-converted HEVC file. The script then summarizes all `.rpu.bin` files in the same directory as the source MKV file and outputs [L1 plots](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Content-Creation-Best-Practices-Guide?language=en_US) that include the enhancement layer variant (MEL/FEL), Content Metadata version (CMv2.9/CMv4.0), and shot-by-shot brightness levels for each RPU.
+To identify the EL type, the `entrypoint.sh` script extracts not only the converted RPU, but also the original Profile 7 RPU from the un-converted HEVC file. The script then summarizes all `.rpu.bin` files in the same directory as the source MKV file and outputs [L1 plots](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Content-Creation-Best-Practices-Guide?language=en_US) that include the enhancement layer variant (MEL/FEL), [Content Metadata](#dolby-vision-content-metadata) version (CMv2.9/CMv4.0), and shot-by-shot brightness levels for each RPU.
+
+### Dolby Vision Content Metadata
+
+Dolby Vision includes "[Content Metadata](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Metadata-Levels?language=en_US)" (CM) specifying the algorithm to use when displaying content. CMv4.0 is backwards-compatible with the previous CMv2.9, but in the past, some devices and applications have had limited support for CMv4.0.
+
+The conversion process performed by the `entrypoint.sh` script will preserve CMv4.0 metadata.
