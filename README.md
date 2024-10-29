@@ -19,3 +19,20 @@ Supported [environment variables](https://docs.docker.com/reference/cli/docker/c
 
 - `DOVI_TRACK` (`0` or `>=1`, default `0`): Dolby Vision track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
 - `VIDEO_TRACK` (`0` or `>=1`, default `0`): HDR10 Base Layer (BL) video track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
+
+## Notes
+
+### Dolby Vision Enhancement Layers
+
+The `entrypoint.sh` script used in the `dovi_tool` Docker image converts Dolby Vision Profile 7 (`dvhe.07.06`) to Profile 8 (`dvhe.08.06`). In addition to the HDR10 Base Layer (BL), Profile 7 includes an "Enhancement Layer" (EL) and "Reference Picture Unit" (RPU) information.
+
+The Profile 7 EL comes in two variants:
+
+1. "Minimal Enhancement Layer" (MEL). On MEL sources, the EL is empty (included only for compatibility purposes) and the RPU has all of the Dolby Vision data.
+2. "Full Enhancement Layer" (FEL). On FEL sources, the EL has additional color information, as well as luma and chroma mappings, increasing color bit depth to 12 bit.
+
+Profile 8 only includes BL+RPU and does not include the EL. Converting a MEL from Profile 7 to Profile 8 is effectively a lossless conversion (because the RPU contains all Dolby Vision data), but converting a FEL from Profile 7 to Profile 8 is a lossy conversion because the additional color data must be discarded.
+
+It is therefore helpful to know if a Profile 7 source is MEL or FEL. MediaInfo does not provide this information because it might require parsing the RPU, which is something MediaInfo does not do by default ([MediaArea/MediaInfo#721](https://github.com/MediaArea/MediaInfo/issues/721)).
+
+To identify the EL type, the `entrypoint.sh` script extracts not only the converted RPU, but also the original Profile 7 RPU from the un-converted HEVC file. The script then summarizes all `.rpu.bin` files in the same directory as the source MKV file and outputs [L1 plots](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Content-Creation-Best-Practices-Guide?language=en_US) that include the enhancement layer variant (MEL/FEL), Content Metadata version (CMv2.9/CMv4.0), and shot-by-shot brightness levels for each RPU.
