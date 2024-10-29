@@ -107,7 +107,7 @@ create_plot() {
 		exit 1
 	fi
 	printf "\n\nCreating plot from converted RPU...\n"
-	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.l1_plot.png"; then
+	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.dv8.l1_plot.png"; then
 		printf "\nFailed to create plot from RPU\n"
 		cleanup "$1"
 		exit 1
