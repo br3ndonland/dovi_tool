@@ -44,3 +44,9 @@ To identify the EL type, the `entrypoint.sh` script extracts not only the conver
 Dolby Vision includes "[Content Metadata](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Metadata-Levels?language=en_US)" (CM) specifying the algorithm to use when displaying content. CMv4.0 is backwards-compatible with the previous CMv2.9, but in the past, some devices and applications have had limited support for CMv4.0.
 
 The conversion process performed by the `entrypoint.sh` script will preserve CMv4.0 metadata.
+
+## Development
+
+- Docker container images are built with [GitHub Actions](https://docs.github.com/en/actions) using workflows in [`.github/workflows`](./.github/workflows/ci.yml).
+- Shell scripts are checked with [ShellCheck](https://github.com/koalaman/shellcheck) and formatted with [`shfmt`](https://github.com/mvdan/sh).
+- Web code (JSON, Markdown, YAML, etc.) is formatted with [Prettier](https://prettier.io/).

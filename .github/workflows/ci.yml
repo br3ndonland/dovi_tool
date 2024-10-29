@@ -1,12 +1,39 @@
-name: Build container image
+name: ci
 
 on:
+  pull_request:
   push:
   workflow_dispatch:
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Homebrew to $PATH
+        run: |
+          # mitigate https://github.com/actions/runner-images/issues/6283
+          echo "/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >>"$GITHUB_PATH"
+      - uses: actions/checkout@v4
+      - name: Install formatters with Homebrew
+        run: brew install prettier shfmt
+      - name: Check shell script formatting with shfmt
+        run: shfmt -d .
+      - name: Check shell script formatting with ShellCheck
+        run: |
+          shopt -s globstar nullglob
+          set -- **/*.{sh,bash}
+          if [ -n "$1" ]; then
+            echo "Checking $@"
+            shellcheck "$@"
+          else
+            echo "No shell scripts for ShellCheck to check."
+          fi
+        shell: bash
+      - name: Check web code formatting with Prettier
+        run: prettier --check .
   build:
     runs-on: ubuntu-latest
+    needs: [check]
     permissions:
       contents: read
       packages: write
