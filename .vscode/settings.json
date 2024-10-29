@@ -1,0 +1,13 @@
+{
+  "[json][markdown][yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[shellscript]": {
+    "editor.detectIndentation": true,
+    "editor.insertSpaces": false,
+    "files.eol": "\n"
+  },
+  "editor.tabSize": 2,
+  "shellcheck.enable": true,
+  "shellcheck.run": "onSave"
+}

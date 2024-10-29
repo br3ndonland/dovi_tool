@@ -50,3 +50,4 @@ The conversion process performed by the `entrypoint.sh` script will preserve CMv
 - Docker container images are built with [GitHub Actions](https://docs.github.com/en/actions) using workflows in [`.github/workflows`](./.github/workflows/ci.yml).
 - Shell scripts are checked with [ShellCheck](https://github.com/koalaman/shellcheck) and formatted with [`shfmt`](https://github.com/mvdan/sh).
 - Web code (JSON, Markdown, YAML, etc.) is formatted with [Prettier](https://prettier.io/).
+- [VSCode settings](https://code.visualstudio.com/docs/getstarted/settings) and [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) are included in the `.vscode` directory.

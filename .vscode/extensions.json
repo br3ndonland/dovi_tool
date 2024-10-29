@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "foxundermoon.shell-format",
+    "github.vscode-github-actions",
+    "timonwong.shellcheck",
+    "yzhang.markdown-all-in-one"
+  ],
+  "unwantedRecommendations": []
+}
