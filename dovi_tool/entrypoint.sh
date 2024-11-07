@@ -2,7 +2,7 @@
 
 set -eo
 
-CONVERT_FEL=${CONVERT_FEL:=1}
+STOP_IF_FEL=${STOP_IF_FEL:=0}
 DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
 
@@ -98,7 +98,7 @@ summarize_rpu() {
 			exit 1
 		else
 			printf "%s" "$rpu_summary\n"
-			if printf "%s" "$rpu_summary" | grep "FEL" && [ "$CONVERT_FEL" -eq 0 ]; then
+			if printf "%s" "$rpu_summary" | grep "FEL" && [ "$STOP_IF_FEL" -eq 1 ]; then
 				printf "\nFull Enhancement Layer (FEL) detected in %s.\nExiting.\n" "$rpu"
 				cleanup "$1"
 				exit 1

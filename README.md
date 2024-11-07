@@ -19,7 +19,7 @@ Although the converted file will be the same size or smaller than the source fil
 
 Supported [environment variables](https://docs.docker.com/reference/cli/docker/container/run/#env):
 
-- `CONVERT_FEL` (`0` or `1`, default `1`): whether or not to proceed with conversion if a [Full Enhancement Layer](#dolby-vision-enhancement-layers) (FEL) is detected. If `CONVERT_FEL=0` and a FEL is detected, the `entrypoint.sh` script will exit prior to converting the source file.
+- `STOP_IF_FEL` (`0` or `1`, default `0`): whether or not to proceed with conversion if a [Full Enhancement Layer](#dolby-vision-enhancement-layers) (FEL) is detected. If `STOP_IF_FEL=1` and a FEL is detected, the `entrypoint.sh` script will exit prior to overwriting the source file.
 - `DOVI_TRACK` (`0` or `>=1`, default `0`): Dolby Vision track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
 - `VIDEO_TRACK` (`0` or `>=1`, default `0`): HDR10 Base Layer (BL) video track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
 
@@ -40,7 +40,7 @@ It is therefore helpful to know if a Profile 7 source is MEL or FEL. MediaInfo d
 
 To identify the EL type, the `entrypoint.sh` script extracts not only the converted RPU, but also the original Profile 7 RPU from the un-converted HEVC file. The script then summarizes all `.rpu.bin` files in the same directory as the source MKV file and outputs [L1 plots](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Content-Creation-Best-Practices-Guide?language=en_US) that include the enhancement layer variant (MEL/FEL), [Content Metadata](#dolby-vision-content-metadata) version (CMv2.9/CMv4.0), and shot-by-shot brightness levels for each RPU.
 
-If the environment variable `CONVERT_FEL` is set to `0`, the script will exit if it detects a FEL.
+If the environment variable `STOP_IF_FEL` is set to `1`, the script will exit if it detects a FEL.
 
 ### Dolby Vision Content Metadata
 
