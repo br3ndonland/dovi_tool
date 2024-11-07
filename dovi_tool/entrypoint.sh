@@ -48,8 +48,8 @@ get_dvhe_profile() {
 	fi
 }
 
-extract_mkv() {
-	printf "\n\nExtracting %s...\n" "$1"
+extract_hevc() {
+	printf "\n\nExtracting HEVC track from %s...\n" "$1"
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
 		if ! print_and_run mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
 			printf "\nFailed to extract %s\n" "$1"
@@ -65,8 +65,8 @@ extract_mkv() {
 	fi
 }
 
-convert_mkv() {
-	printf "\n\nConverting %s...\n" "$1"
+convert_hevc() {
+	printf "\n\nConverting %s...\n" "${1%.*}.hevc"
 	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.hevc" -o "${1%.*}.dv8.hevc"; then
 		printf "\nFailed to convert %s\n" "$1"
 		cleanup "$1"
@@ -124,8 +124,8 @@ create_plot() {
 
 demux_file() {
 	printf "\n\nDemuxing %s...\n" "$1"
-	extract_mkv "$1"
-	convert_mkv "$1"
+	extract_hevc "$1"
+	convert_hevc "$1"
 	extract_rpu "$1"
 	summarize_rpu "$1"
 	create_plot "$1"
