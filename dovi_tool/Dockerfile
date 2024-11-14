@@ -12,8 +12,8 @@ RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix
 ADD https://github.com/quietvoid/dovi_tool/releases/download/${DOVI_TOOL_VERSION}/dovi_tool-${DOVI_TOOL_VERSION}-${DOVI_TOOL_ARCH}.tar.gz /tmp
 RUN tar -xvf /tmp/dovi_tool-${DOVI_TOOL_VERSION}-${DOVI_TOOL_ARCH}.tar.gz -C /usr/local/bin && rm -rf /tmp/*
 
-COPY ./dovi_tool.config.json /config/dovi_tool.config.json
-COPY --chmod=755 ./entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --link ./dovi_tool.config.json /config/dovi_tool.config.json
+COPY --link --chmod=755 ./entrypoint.sh /usr/local/bin/entrypoint.sh
 
 WORKDIR /opt/media
 
