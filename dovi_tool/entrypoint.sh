@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-set -eo
+set -e
 
 STOP_IF_FEL=${STOP_IF_FEL:=0}
 DOVI_TRACK=${DOVI_TRACK:=0}
