@@ -1,6 +1,5 @@
 FROM alpine:edge
-ARG DOVI_TOOL_VERSION=2.1.2
-ARG DOVI_TOOL_ARCH=x86_64-unknown-linux-musl
+ARG DOVI_TOOL_ARCH=x86_64-unknown-linux-musl DOVI_TOOL_VERSION=2.1.2
 
 LABEL org.opencontainers.image.description="Container image that can be used to run dovi_tool"
 LABEL org.opencontainers.image.licenses="CC0-1.0"
