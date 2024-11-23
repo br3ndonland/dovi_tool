@@ -20,7 +20,7 @@ Although the converted file will be the same size or smaller than the source fil
 To keep the container running for interactive usage of `dovi_tool`, `mediainfo`, and MKVToolNix (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
 
 ```sh
-docker run --rm -it --entrypoint ash ghcr.io/br3ndonland/dovi_tool
+docker run --rm -it -v /path/to/media/dir:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
 ```
 
 Supported [environment variables](https://docs.docker.com/reference/cli/docker/container/run/#env):
