@@ -7,7 +7,7 @@ DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
 
 # Sanity check
-for command in mediainfo dovi_tool mkvmerge jq; do
+for command in dovi_tool jq mediainfo mkvmerge; do
 	if ! command -v $command >/dev/null 2>&1; then
 		printf "\n%s could not be found\n" $command
 		exit 1
