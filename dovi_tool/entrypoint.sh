@@ -127,8 +127,8 @@ demux_file() {
 	extract_hevc "$1"
 	convert_hevc "$1"
 	extract_rpu "$1"
-	summarize_rpu "$1"
 	create_plot "$1"
+	summarize_rpu "$1"
 }
 
 remux_file() {
