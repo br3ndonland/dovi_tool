@@ -51,13 +51,13 @@ get_dvhe_profile() {
 extract_hevc() {
 	printf "\n\nExtracting HEVC track from %s...\n" "$1"
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
-		if ! print_and_run mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
+		if ! print_and_run mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.dv7.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
 			printf "\nFailed to extract %s\n" "$1"
 			cleanup "$1"
 			exit 1
 		fi
 	else
-		if ! print_and_run mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.hevc"; then
+		if ! print_and_run mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.dv7.hevc"; then
 			printf "\nFailed to extract %s\n" "$1"
 			cleanup "$1"
 			exit 1
@@ -66,8 +66,8 @@ extract_hevc() {
 }
 
 convert_hevc() {
-	printf "\n\nConverting %s...\n" "${1%.*}.hevc"
-	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.hevc" -o "${1%.*}.dv8.hevc"; then
+	printf "\n\nConverting %s...\n" "${1%.*}.dv7.hevc"
+	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.dv7.hevc" -o "${1%.*}.dv8.hevc"; then
 		printf "\nFailed to convert %s\n" "$1"
 		cleanup "$1"
 		exit 1
@@ -75,66 +75,61 @@ convert_hevc() {
 }
 
 extract_rpu() {
-	printf "\n\nExtracting original RPU from %s...\n" "${1%.*}.hevc"
-	if ! print_and_run dovi_tool extract-rpu "${1%.*}.hevc" -o "${1%.*}.dv7.rpu.bin"; then
-		printf "\nFailed to extract RPU from %s\n" "${1%.*}.hevc"
-		cleanup "$1"
-		exit 1
-	fi
-	printf "\n\nExtracting converted RPU from %s...\n" "${1%.*}.dv8.hevc"
-	if ! print_and_run dovi_tool extract-rpu "${1%.*}.dv8.hevc" -o "${1%.*}.rpu.bin"; then
-		printf "\nFailed to extract RPU from %s\n" "${1%.*}.dv8.hevc"
-		cleanup "$1"
-		exit 1
+	printf "\n\nExtracting RPU from %s...\n" "$1"
+	if ! print_and_run dovi_tool extract-rpu "$1" -o "${1%.*}.rpu.bin"; then
+		printf "\nFailed to extract RPU from %s\n" "$1"
+		return 1
 	fi
 }
 
 plot_rpu() {
-	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.dv7.rpu.bin"
-	if ! print_and_run dovi_tool plot "${1%.*}.dv7.rpu.bin" -o "${1%.*}.dv7.l1_plot.png"; then
-		printf "\nFailed to create plot from RPU\n"
-		cleanup "$1"
-		exit 1
-	fi
-	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.rpu.bin"
-	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.dv8.l1_plot.png"; then
-		printf "\nFailed to create plot from RPU\n"
-		cleanup "$1"
-		exit 1
+	printf "\n\nPlotting RPU info from %s...\n" "$1"
+	if ! print_and_run dovi_tool plot "$1" -o "${1%.rpu.bin}.l1_plot.png"; then
+		printf "\nFailed to plot RPU info from %s\n" "$1"
+		return 1
 	fi
 }
 
 summarize_rpu() {
-	for rpu in "${1%/*}/"*".rpu.bin"; do
-		printf "\n\nSummarizing RPU info from %s...\n" "$rpu"
-		if ! rpu_summary=$(print_and_run dovi_tool info -i "$rpu" --summary); then
-			printf "\nFailed to summarize RPU info from %s\n" "$rpu"
-			cleanup "$1"
-			exit 1
-		else
-			printf "%s" "$rpu_summary\n"
-			if printf "%s" "$rpu_summary" | grep "FEL" && [ "$STOP_IF_FEL" -eq 1 ]; then
-				printf "\nFull Enhancement Layer (FEL) detected in %s.\nExiting.\n" "$rpu"
-				cleanup "$1"
-				exit 1
-			fi
+	printf "\n\nSummarizing RPU info from %s...\n" "$1"
+	if ! rpu_summary=$(print_and_run dovi_tool info -i "$1" --summary); then
+		printf "\nFailed to summarize RPU info from %s\n" "$1"
+		return 1
+	else
+		printf "%s" "$rpu_summary\n"
+		if printf "%s" "$rpu_summary" | grep "FEL" && [ "$STOP_IF_FEL" -eq 1 ]; then
+			printf "\nFull Enhancement Layer (FEL) detected in %s.\nExiting.\n" "$1"
+			return 1
 		fi
-	done
+	fi
 }
 
 demux_file() {
 	printf "\n\nDemuxing %s...\n" "$1"
 	extract_hevc "$1"
+	if
+		! extract_rpu "${1%.*}.dv7.hevc" ||
+			! plot_rpu "${1%.*}.dv7.rpu.bin" ||
+			! summarize_rpu "${1%.*}.dv7.rpu.bin"
+	then
+		cleanup "$1"
+		exit 1
+	fi
 	convert_hevc "$1"
-	extract_rpu "$1"
-	plot_rpu "$1"
-	summarize_rpu "$1"
+	if
+		! extract_rpu "${1%.*}.dv8.hevc" ||
+			! plot_rpu "${1%.*}.dv8.rpu.bin" ||
+			! summarize_rpu "${1%.*}.dv8.rpu.bin"
+	then
+		cleanup "$1"
+		exit 1
+	fi
 }
 
 remux_file() {
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
 		printf "\n\nInjecting RPU into BL...\n"
-		if ! print_and_run dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.rpu.bin" -o "${1%.*}.dv8.hevc"; then
+		if ! print_and_run dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.dv8.rpu.bin" -o "${1%.*}.dv8.hevc"; then
 			printf "\nFailed to inject RPU into BL\n"
 			cleanup "$1"
 			exit 1
