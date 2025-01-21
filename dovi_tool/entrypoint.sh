@@ -33,7 +33,7 @@ print_and_run() {
 # Cleanup function to remove any leftover files
 cleanup() {
 	printf "\n\nCleaning up working files...\n"
-	rm -f "${1%.*}.hevc" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy" "${1%.*}.bl.hevc" "${1%.*}.dv8.hevc" "${1%/*}/"*".rpu.bin"
+	rm -f "${1%.*}"*".hevc" "${1%.*}.mkv."* "${1%.*}"*".rpu.bin"
 }
 
 # Get DV profile information using mediainfo
