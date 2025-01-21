@@ -107,14 +107,14 @@ summarize_rpu() {
 	done
 }
 
-create_plot() {
-	printf "\n\nCreating plot from original RPU...\n"
+plot_rpu() {
+	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.dv7.rpu.bin"
 	if ! print_and_run dovi_tool plot "${1%.*}.dv7.rpu.bin" -o "${1%.*}.dv7.l1_plot.png"; then
 		printf "\nFailed to create plot from RPU\n"
 		cleanup "$1"
 		exit 1
 	fi
-	printf "\n\nCreating plot from converted RPU...\n"
+	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.rpu.bin"
 	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.dv8.l1_plot.png"; then
 		printf "\nFailed to create plot from RPU\n"
 		cleanup "$1"
@@ -127,7 +127,7 @@ demux_file() {
 	extract_hevc "$1"
 	convert_hevc "$1"
 	extract_rpu "$1"
-	create_plot "$1"
+	plot_rpu "$1"
 	summarize_rpu "$1"
 }
 
