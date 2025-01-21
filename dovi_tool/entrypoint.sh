@@ -89,6 +89,21 @@ extract_rpu() {
 	fi
 }
 
+plot_rpu() {
+	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.dv7.rpu.bin"
+	if ! print_and_run dovi_tool plot "${1%.*}.dv7.rpu.bin" -o "${1%.*}.dv7.l1_plot.png"; then
+		printf "\nFailed to create plot from RPU\n"
+		cleanup "$1"
+		exit 1
+	fi
+	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.rpu.bin"
+	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.dv8.l1_plot.png"; then
+		printf "\nFailed to create plot from RPU\n"
+		cleanup "$1"
+		exit 1
+	fi
+}
+
 summarize_rpu() {
 	for rpu in "${1%/*}/"*".rpu.bin"; do
 		printf "\n\nSummarizing RPU info from %s...\n" "$rpu"
@@ -105,21 +120,6 @@ summarize_rpu() {
 			fi
 		fi
 	done
-}
-
-plot_rpu() {
-	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.dv7.rpu.bin"
-	if ! print_and_run dovi_tool plot "${1%.*}.dv7.rpu.bin" -o "${1%.*}.dv7.l1_plot.png"; then
-		printf "\nFailed to create plot from RPU\n"
-		cleanup "$1"
-		exit 1
-	fi
-	printf "\n\nPlotting RPU info from %s...\n" "${1%.*}.rpu.bin"
-	if ! print_and_run dovi_tool plot "${1%.*}.rpu.bin" -o "${1%.*}.dv8.l1_plot.png"; then
-		printf "\nFailed to create plot from RPU\n"
-		cleanup "$1"
-		exit 1
-	fi
 }
 
 demux_file() {
