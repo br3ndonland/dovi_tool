@@ -36,6 +36,8 @@ cleanup() {
 	rm -f "${1%.*}"*".hevc" "${1%.*}.mkv."* "${1%.*}"*".rpu.bin"
 }
 
+trap 'cleanup "$1"' EXIT
+
 # Get DV profile information using mediainfo
 get_dvhe_profile() {
 	printf "\n\nChecking for Dolby Vision %s profile...\n" "$2"
@@ -53,14 +55,12 @@ extract_hevc() {
 	if [ "$DOVI_TRACK" -ne "$VIDEO_TRACK" ]; then
 		if ! print_and_run mkvextract "$1" tracks "$DOVI_TRACK:${1%.*}.dv7.hevc" "$VIDEO_TRACK:${1%.*}.bl.hevc"; then
 			printf "\nFailed to extract %s\n" "$1"
-			cleanup "$1"
-			exit 1
+			return 1
 		fi
 	else
 		if ! print_and_run mkvextract "$1" tracks "$VIDEO_TRACK:${1%.*}.dv7.hevc"; then
 			printf "\nFailed to extract %s\n" "$1"
-			cleanup "$1"
-			exit 1
+			return 1
 		fi
 	fi
 }
@@ -69,8 +69,7 @@ convert_hevc() {
 	printf "\n\nConverting %s...\n" "${1%.*}.dv7.hevc"
 	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.dv7.hevc" -o "${1%.*}.dv8.hevc"; then
 		printf "\nFailed to convert %s\n" "$1"
-		cleanup "$1"
-		exit 1
+		return 1
 	fi
 }
 
@@ -107,23 +106,13 @@ summarize_rpu() {
 demux_file() {
 	printf "\n\nDemuxing %s...\n" "$1"
 	extract_hevc "$1"
-	if
-		! extract_rpu "${1%.*}.dv7.hevc" ||
-			! plot_rpu "${1%.*}.dv7.rpu.bin" ||
-			! summarize_rpu "${1%.*}.dv7.rpu.bin"
-	then
-		cleanup "$1"
-		exit 1
-	fi
+	extract_rpu "${1%.*}.dv7.hevc"
+	plot_rpu "${1%.*}.dv7.rpu.bin"
+	summarize_rpu "${1%.*}.dv7.rpu.bin"
 	convert_hevc "$1"
-	if
-		! extract_rpu "${1%.*}.dv8.hevc" ||
-			! plot_rpu "${1%.*}.dv8.rpu.bin" ||
-			! summarize_rpu "${1%.*}.dv8.rpu.bin"
-	then
-		cleanup "$1"
-		exit 1
-	fi
+	extract_rpu "${1%.*}.dv8.hevc"
+	plot_rpu "${1%.*}.dv8.rpu.bin"
+	summarize_rpu "${1%.*}.dv8.rpu.bin"
 }
 
 remux_file() {
@@ -131,8 +120,7 @@ remux_file() {
 		printf "\n\nInjecting RPU into BL...\n"
 		if ! print_and_run dovi_tool inject-rpu -i "${1%.*}.bl.hevc" --rpu-in "${1%.*}.dv8.rpu.bin" -o "${1%.*}.dv8.hevc"; then
 			printf "\nFailed to inject RPU into BL\n"
-			cleanup "$1"
-			exit 1
+			return 1
 		else
 			rm -f "${1%.*}.bl.hevc"
 		fi
@@ -140,8 +128,7 @@ remux_file() {
 	printf "\n\nRemuxing %s...\n" "$1"
 	if ! print_and_run mkvmerge -o "${1%.*}.mkv.tmp" -D "$1" "${1%.*}.dv8.hevc" --track-order 1:0; then
 		printf "\nFailed to remux %s\n" "$1"
-		cleanup "$1"
-		exit 1
+		return 1
 	fi
 }
 
@@ -150,28 +137,24 @@ overwrite_file() {
 	# Create a symbolic link (symlink) to the temporary file
 	if ! ln "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy"; then
 		printf "\nFailed to copy %s to %s\n" "${1%.*}.mkv.tmp" "${1%.*}.mkv.copy"
-		cleanup "$1"
-		exit 1
+		return 1
 	fi
 
 	# Rename the symlink to the original filename, effectively overwriting the original file
 	if ! mv "${1%.*}.mkv.copy" "$1"; then
 		printf "\nFailed to overwrite %s\n" "$1"
-		cleanup "$1"
-		exit 1
+		return 1
 	fi
 
 	# Remove the temporary file
 	if ! rm "${1%.*}.mkv.tmp"; then
 		printf "\nFailed to remove %s\n" "${1%.*}.mkv.tmp"
-		cleanup "$1"
-		exit 1
+		return 1
 	fi
 
 	if [ -f "${1%.*}.mkv.tmp" ]; then
 		printf "\nFailed to remove %s\n" "${1%.*}.mkv.tmp"
-		cleanup "$1"
-		exit 1
+		return 1
 	fi
 }
 
@@ -180,7 +163,6 @@ main() {
 	demux_file "$1"
 	remux_file "$1"
 	overwrite_file "$1"
-	cleanup "$1"
 }
 
 main "$1" "$2"
