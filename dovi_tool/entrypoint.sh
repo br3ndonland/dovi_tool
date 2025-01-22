@@ -6,7 +6,6 @@ STOP_IF_FEL=${STOP_IF_FEL:=0}
 DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
 
-# Sanity check
 for command in dovi_tool jq mediainfo mkvmerge; do
 	if ! command -v $command >/dev/null 2>&1; then
 		printf "\n%s could not be found\n" $command
@@ -24,13 +23,11 @@ if [ ! -f "$1" ]; then
 	exit 1
 fi
 
-# Helper function to print each command
 print_and_run() {
 	printf "\n------------------\n%s\n------------------\n" "$*" >&2
 	"$@"
 }
 
-# Cleanup function to remove any leftover files
 cleanup() {
 	printf "\n\nCleaning up working files...\n"
 	rm -f "${1%.*}"*".hevc" "${1%.*}.mkv."* "${1%.*}"*".rpu.bin"
@@ -38,7 +35,6 @@ cleanup() {
 
 trap 'cleanup "$1"' EXIT
 
-# Get DV profile information using mediainfo
 get_dvhe_profile() {
 	printf "\n\nChecking for Dolby Vision %s profile...\n" "$2"
 	DVHE_PROFILE=$(print_and_run mediainfo --Output=JSON "$1" | jq '.media.track[].HDR_Format_Profile' | grep "${2}" || true)
