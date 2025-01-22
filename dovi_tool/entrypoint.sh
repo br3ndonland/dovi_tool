@@ -46,7 +46,7 @@ get_dvhe_profile() {
 		printf "\nDVHE %s profile found\n" "$2"
 	else
 		printf "\nDVHE %s profile not found\n" "$2"
-		exit 0
+		exit 1
 	fi
 }
 
