@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM alpine:edge
-ARG DOVI_TOOL_VERSION=2.1.2 TARGETARCH
+ARG DOVI_TOOL_VERSION=2.2.0 TARGETARCH
 
 LABEL org.opencontainers.image.description="Container image that can be used to run dovi_tool"
 LABEL org.opencontainers.image.licenses="CC0-1.0"
