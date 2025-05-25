@@ -10,6 +10,7 @@ LABEL org.opencontainers.image.url="https://github.com/br3ndonland/dovi_tool/pkg
 
 RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix
 RUN <<HEREDOC
+set -e -o pipefail
 case $TARGETARCH in
 amd64) DOVI_TOOL_ARCH="x86_64-unknown-linux-musl" ;;
 arm64) DOVI_TOOL_ARCH="aarch64-unknown-linux-musl" ;;
