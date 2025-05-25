@@ -17,7 +17,7 @@ The Docker container will run the [`entrypoint.sh`](./dovi_tool/entrypoint.sh) s
 
 Although the converted file will be the same size or smaller than the source file, the conversion process will temporarily require additional hard disk space. **It is recommended to have free hard disk space equal to 4x the size of the source file.** This allows space for the original `.mkv`, the extracted `.hevc`, the converted `.dv8.hevc`, and the remuxed `.mkv.tmp`.
 
-To keep the container running for interactive usage of `dovi_tool`, `mediainfo`, and MKVToolNix (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
+To keep the container running for interactive usage of [`dovi_tool`](https://github.com/quietvoid/dovi_tool), [`mediainfo`](https://github.com/mediaarea/mediainfo), and [MKVToolNix](https://codeberg.org/mbunkus/mkvtoolnix) (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
 
 ```sh
 docker run --rm -it -v /path/to/media/dir:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
