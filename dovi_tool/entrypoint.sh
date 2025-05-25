@@ -6,7 +6,7 @@ STOP_IF_FEL=${STOP_IF_FEL:=0}
 DOVI_TRACK=${DOVI_TRACK:=0}
 VIDEO_TRACK=${VIDEO_TRACK:=0}
 
-for command in dovi_tool jq mediainfo mkvmerge; do
+for command in dovi_tool hdr10plus_tool jq mediainfo mkvmerge; do
 	if ! command -v $command >/dev/null 2>&1; then
 		printf "\n%s could not be found\n" $command
 		exit 1
@@ -63,7 +63,7 @@ extract_hevc() {
 
 convert_hevc() {
 	printf "\n\nConverting %s...\n" "${1%.*}.dv7.hevc"
-	if ! print_and_run dovi_tool --edit-config /config/dovi_tool.config.json convert --discard "${1%.*}.dv7.hevc" -o "${1%.*}.dv8.hevc"; then
+	if ! print_and_run dovi_tool --edit-config /config/dovi_tool_editor_config.json convert --discard "${1%.*}.dv7.hevc" -o "${1%.*}.dv8.hevc"; then
 		printf "\nFailed to convert %s\n" "$1"
 		return 1
 	fi

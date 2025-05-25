@@ -17,7 +17,7 @@ The Docker container will run the [`entrypoint.sh`](./dovi_tool/entrypoint.sh) s
 
 Although the converted file will be the same size or smaller than the source file, the conversion process will temporarily require additional hard disk space. **It is recommended to have free hard disk space equal to 4x the size of the source file.** This allows space for the original `.mkv`, the extracted `.hevc`, the converted `.dv8.hevc`, and the remuxed `.mkv.tmp`.
 
-To keep the container running for interactive usage of [`dovi_tool`](https://github.com/quietvoid/dovi_tool), [`mediainfo`](https://github.com/mediaarea/mediainfo), and [MKVToolNix](https://codeberg.org/mbunkus/mkvtoolnix) (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
+To keep the container running for interactive usage of [`dovi_tool`](https://github.com/quietvoid/dovi_tool), [`hdr10plus_tool`](https://github.com/quietvoid/hdr10plus_tool), [`mediainfo`](https://github.com/mediaarea/mediainfo), and [MKVToolNix](https://codeberg.org/mbunkus/mkvtoolnix) (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
 
 ```sh
 docker run --rm -it -v /path/to/media/dir:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
@@ -53,6 +53,12 @@ If the environment variable `STOP_IF_FEL` is set to `1`, the script will exit if
 Dolby Vision includes "[Content Metadata](https://professionalsupport.dolby.com/s/article/Dolby-Vision-Metadata-Levels?language=en_US)" (CM) specifying the algorithm to use when displaying content. CMv4.0 is backwards-compatible with the previous CMv2.9, but in the past, some devices and applications have had limited support for CMv4.0.
 
 The conversion process performed by the `entrypoint.sh` script will preserve CMv4.0 metadata.
+
+### HDR10+
+
+[`hdr10plus_tool`](https://github.com/quietvoid/hdr10plus_tool) is included in this project because it can be useful for converting HDR10+ metadata to Dolby Vision metadata.
+
+A [`dovi_tool` generator config](https://github.com/quietvoid/dovi_tool/blob/main/docs/generator.md) is required in order to convert HDR10+ metadata. The Docker container image includes a default generator config that is suitable for general-purpose HDR10+ conversion. The default may not be adequate in all circumstances and further customization may be needed for best results.
 
 ## Development
 
