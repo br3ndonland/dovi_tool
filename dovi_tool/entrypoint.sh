@@ -71,7 +71,9 @@ convert_hevc() {
 
 extract_rpu() {
 	printf "\n\nExtracting RPU from %s...\n" "$1"
-	if ! print_and_run dovi_tool extract-rpu "$1" -o "${1%.*}.rpu.bin"; then
+	output_filename_default="${1%.*}.rpu.bin"
+	output_filename="${2:-$output_filename_default}"
+	if ! print_and_run dovi_tool extract-rpu "$1" -o "$output_filename"; then
 		printf "\nFailed to extract RPU from %s\n" "$1"
 		return 1
 	fi
@@ -101,10 +103,10 @@ summarize_rpu() {
 
 demux_file() {
 	printf "\n\nDemuxing %s...\n" "$1"
-	extract_hevc "$1"
-	extract_rpu "${1%.*}.dv7.hevc"
+	extract_rpu "$1" "${1%.*}.dv7.rpu.bin"
 	plot_rpu "${1%.*}.dv7.rpu.bin"
 	summarize_rpu "${1%.*}.dv7.rpu.bin"
+	extract_hevc "$1"
 	convert_hevc "$1"
 	extract_rpu "${1%.*}.dv8.hevc"
 	plot_rpu "${1%.*}.dv8.rpu.bin"
