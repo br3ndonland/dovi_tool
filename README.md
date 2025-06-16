@@ -60,6 +60,19 @@ The conversion process performed by the `entrypoint.sh` script will preserve CMv
 
 A [`dovi_tool` generator config](https://github.com/quietvoid/dovi_tool/blob/main/docs/generator.md) is required in order to convert HDR10+ metadata. The Docker container image includes a default generator config that is suitable for general-purpose HDR10+ conversion. The default may not be adequate in all circumstances and further customization may be needed for best results.
 
+An example HDR10+ conversion workflow might look like this:
+
+```sh
+input_filename=file.mkv
+mkvextract "$input_filename" tracks 0:"${input_filename/.mkv/.hdr10plus.hevc}"
+hdr10plus_tool extract "${input_filename/.mkv/.hdr10plus.hevc}" -o "${input_filename/.mkv/.hdr10plus.json}"
+hdr10plus_tool plot "${input_filename/.mkv/.hdr10plus.json}" -o "${input_filename/.mkv/.hdr10plus_plot.png}"
+dovi_tool generate -j /config/dovi_tool_generator_config.json --hdr10plus-json "${input_filename/.mkv/.hdr10plus.json}" -o "${input_filename/.mkv/.rpu.bin}"
+dovi_tool plot "${input_filename/.mkv/.rpu.bin}" -o "${input_filename/.mkv/.dv8.l1_plot.png}"
+dovi_tool inject-rpu -i "${input_filename/.mkv/.hdr10plus.hevc}" --rpu-in "${input_filename/.mkv/.rpu.bin}" -o "${input_filename/.mkv/.dv8.hevc}"
+mkvmerge -o "${input_filename/.mkv/.dv8.mkv}" --no-video "$input_filename" "${input_filename/.mkv/.dv8.hevc}" --track-order 1:0
+```
+
 ## Development
 
 - Docker container images are built with [GitHub Actions](https://docs.github.com/en/actions) using workflows in [`.github/workflows`](./.github/workflows/ci.yml).
