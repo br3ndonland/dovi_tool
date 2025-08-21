@@ -1,0 +1,16 @@
+# https://mise.jdx.dev/configuration.html
+[settings]
+activate_aggressive = true
+jobs = 2
+
+[tools]
+# https://mise.jdx.dev/configuration.html#scopes
+# https://mise.jdx.dev/dev-tools/
+#
+# registry tools from core backend
+node = "24"
+# registry tools from other backends
+shellcheck = "prefix:0.11"
+shfmt = "prefix:3.12"
+# non-registry tools from specific backends
+"npm:prettier" = "prefix:3"

@@ -76,6 +76,7 @@ mkvmerge -o "${input_filename/.mkv/.dv8.mkv}" --no-video "$input_filename" "${in
 ## Development
 
 - Docker container images are built with [GitHub Actions](https://docs.github.com/en/actions) using workflows in [`.github/workflows`](./.github/workflows/ci.yml).
+- [mise-en-place](https://mise.jdx.dev/) is a tool manager. The [`mise.toml` configuration file](https://mise.jdx.dev/configuration.html) is used to install tools needed for the project.
 - Shell scripts are checked with [ShellCheck](https://github.com/koalaman/shellcheck) and formatted with [`shfmt`](https://github.com/mvdan/sh).
 - Web code (JSON, Markdown, YAML, etc.) is formatted with [Prettier](https://prettier.io/).
 - [VSCode settings](https://code.visualstudio.com/docs/getstarted/settings) and [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) are included in the `.vscode` directory.
