@@ -22,7 +22,7 @@ jobs:
         run: shfmt -d .
       - name: Check shell script formatting with ShellCheck
         run: |
-          shopt -s globstar nullglob
+          shopt -s dotglob globstar nullglob
           set -- **/*.{sh,bash}
           if [ -n "$1" ]; then
             echo "Checking $@"
