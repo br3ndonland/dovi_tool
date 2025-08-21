@@ -1,10 +1,11 @@
 {
   "recommendations": [
+    "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
-    "foxundermoon.shell-format",
     "github.vscode-github-actions",
+    "mkhl.shfmt",
     "timonwong.shellcheck",
     "yzhang.markdown-all-in-one"
   ],
-  "unwantedRecommendations": []
+  "unwantedRecommendations": ["foxundermoon.shell-format"]
 }
