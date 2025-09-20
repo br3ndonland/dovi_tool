@@ -39,8 +39,8 @@ fi
 description = "Check shell script formatting with shfmt"
 run = """
 # Checking shell script formatting with shfmt.
-echo "Found the following files:
-$(shfmt -f .)"
+echo "Found the following files:"
+shfmt -f .
 shfmt -d .
 """
 
