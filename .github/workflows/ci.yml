@@ -11,7 +11,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install mise-en-place
         uses: jdx/mise-action@v3
       - name: Run code quality checks
@@ -23,7 +23,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@5
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v3
       - name: Set up metadata
