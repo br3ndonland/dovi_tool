@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM alpine:edge
-ARG DOVI_TOOL_VERSION=2.3.0 HDR10PLUS_TOOL_VERSION=1.7.1 TARGETARCH
+ARG DOVI_TOOL_VERSION=2.3.1 HDR10PLUS_TOOL_VERSION=1.7.1 TARGETARCH
 
 LABEL org.opencontainers.image.description="Container image that can be used to run dovi_tool"
 LABEL org.opencontainers.image.licenses="CC0-1.0"
