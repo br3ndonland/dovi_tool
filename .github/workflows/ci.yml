@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/dovi_tool
+          images: ghcr.io/${{ github.repository }}
           flavor: |
             latest=${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
           tags: |
