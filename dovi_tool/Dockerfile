@@ -8,7 +8,8 @@ LABEL org.opencontainers.image.source="https://github.com/br3ndonland/dovi_tool"
 LABEL org.opencontainers.image.title="dovi_tool"
 LABEL org.opencontainers.image.url="https://github.com/br3ndonland/dovi_tool/pkgs/container/dovi_tool"
 
-RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix
+RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix shadow
+RUN groupadd -g 568 apps && useradd --no-log-init -r -u 568 -g apps apps
 RUN <<HEREDOC
 set -e -o pipefail
 case $TARGETARCH in

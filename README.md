@@ -38,6 +38,38 @@ Supported [environment variables](https://docs.docker.com/reference/cli/docker/c
 
 [Multi-platform builds](https://docs.docker.com/build/building/multi-platform/) are provided for the `linux/amd64` and `linux/arm64` platforms. If running on a different platform, use the [`--platform` option](https://docs.docker.com/reference/cli/docker/container/run/) to emulate a supported platform.
 
+### Users
+
+Docker containers run as the `root` user by default. However, it is [considered a best practice](https://docs.docker.com/build/building/best-practices/#user) to run as a non-root user when possible. The `dovi_tool` container image provides a non-root user `apps` (UID `568`) and group `apps` (GID `568`) for this purpose.
+
+For the `docker run` CLI, add the [`-u`, `--user` option](https://docs.docker.com/reference/cli/docker/container/run/) (`-u apps`) to run as the non-root user.
+
+```sh
+docker run --rm -it -u apps -v /path/to/media:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
+```
+
+For Docker Compose, add the [`user` key](https://docs.docker.com/reference/compose-file/services/#user) to the appropriate service (`user: apps`) to run as the non-root user.
+
+```yaml
+# compose.yaml
+name: dovi_tool
+services:
+  dovi_tool:
+    image: ghcr.io/br3ndonland/dovi_tool
+    container_name: ${COMPOSE_PROJECT_NAME}
+    pull_policy: always
+    restart: "no"
+    user: apps
+    stdin_open: true
+    tty: true
+    entrypoint: ash
+    environment:
+      - STOP_IF_FEL=1
+      - TZ=
+    volumes:
+      - /path/to/media:/opt/media
+```
+
 ## Notes
 
 ### Dolby Vision Enhancement Layers
