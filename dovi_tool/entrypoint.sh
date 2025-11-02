@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# shellcheck shell="busybox ash"
 
 set -e
 
