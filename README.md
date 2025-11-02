@@ -7,7 +7,7 @@ This repo builds a Docker container image that can be used to run [dovi_tool](ht
 ## Usage
 
 ```sh
-docker run --rm -it -v /path/to/media/dir:/opt/media ghcr.io/br3ndonland/dovi_tool '<filename>' dvhe.07
+docker run --rm -it -v /path/to/media:/opt/media ghcr.io/br3ndonland/dovi_tool '<filename>' dvhe.07
 ```
 
 The Docker container will run the [`entrypoint.sh`](./dovi_tool/entrypoint.sh) script. The script will convert the [Dolby Vision profile](https://professionalsupport.dolby.com/s/article/What-is-Dolby-Vision-Profile?language=en_US) in the source media file from 7 to 8 for broader device compatibility.
@@ -19,7 +19,7 @@ Although the converted file will be the same size or smaller than the source fil
 To keep the container running for interactive usage of [`dovi_tool`](https://github.com/quietvoid/dovi_tool), [`hdr10plus_tool`](https://github.com/quietvoid/hdr10plus_tool), [`mediainfo`](https://github.com/mediaarea/mediainfo), and [MKVToolNix](https://codeberg.org/mbunkus/mkvtoolnix) (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
 
 ```sh
-docker run --rm -it -v /path/to/media/dir:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
+docker run --rm -it -v /path/to/media:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
 ```
 
 Supported [environment variables](https://docs.docker.com/reference/cli/docker/container/run/#env):
