@@ -28,6 +28,8 @@ Supported [environment variables](https://docs.docker.com/reference/cli/docker/c
 - `DOVI_TRACK` (`0` or `>=1`, default `0`): Dolby Vision track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
 - `VIDEO_TRACK` (`0` or `>=1`, default `0`): HDR10 Base Layer (BL) video track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
 
+[Multi-platform builds](https://docs.docker.com/build/building/multi-platform/) are provided for the `linux/amd64` and `linux/arm64` platforms. If running on a different platform, use the [`--platform` option](https://docs.docker.com/reference/cli/docker/container/run/) to emulate a supported platform.
+
 ## Notes
 
 ### Dolby Vision Enhancement Layers
