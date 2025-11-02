@@ -24,6 +24,8 @@ wget -P /tmp https://github.com/quietvoid/hdr10plus_tool/releases/download/${HDR
 tar -xvf /tmp/${DOVI_TOOL_ARCHIVE} -C /usr/local/bin
 tar -xvf /tmp/${HDR10PLUS_TOOL_ARCHIVE} -C /usr/local/bin
 rm -rf /tmp/*
+dovi_tool --version
+hdr10plus_tool --version
 HEREDOC
 
 COPY --link ./dovi_tool_editor_config.json ./dovi_tool_generator_config.json /config/
