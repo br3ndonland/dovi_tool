@@ -6,6 +6,8 @@ This repo builds a Docker container image that can be used to run [dovi_tool](ht
 
 ## Usage
 
+### General usage
+
 ```sh
 docker run --rm -it -v /path/to/media:/opt/media ghcr.io/br3ndonland/dovi_tool '<filename>' dvhe.07
 ```
@@ -16,17 +18,23 @@ The Docker container will run the [`entrypoint.sh`](./dovi_tool/entrypoint.sh) s
 
 Although the converted file will be the same size or smaller than the source file, the conversion process will temporarily require additional hard disk space. **It is recommended to have free hard disk space equal to 4x the size of the source file.** This allows space for the original `.mkv`, the extracted `.hevc`, the converted `.dv8.hevc`, and the remuxed `.mkv.tmp`.
 
+### Interactive usage
+
 To keep the container running for interactive usage of [`dovi_tool`](https://github.com/quietvoid/dovi_tool), [`hdr10plus_tool`](https://github.com/quietvoid/hdr10plus_tool), [`mediainfo`](https://github.com/mediaarea/mediainfo), and [MKVToolNix](https://codeberg.org/mbunkus/mkvtoolnix) (`mkvinfo`, `mkvmerge`, `mkvpropedit`), simply change the `--entrypoint`. [Alpine Linux uses BusyBox Ash as the default shell](https://wiki.alpinelinux.org/wiki/BusyBox).
 
 ```sh
 docker run --rm -it -v /path/to/media:/opt/media --entrypoint ash ghcr.io/br3ndonland/dovi_tool
 ```
 
+### Environment variables
+
 Supported [environment variables](https://docs.docker.com/reference/cli/docker/container/run/#env):
 
 - `STOP_IF_FEL` (`0` or `1`, default `0`): whether or not to proceed with conversion if a [Full Enhancement Layer](#dolby-vision-enhancement-layers) (FEL) is detected. If `STOP_IF_FEL=1` and a FEL is detected, the `entrypoint.sh` script will exit prior to overwriting the source file.
 - `DOVI_TRACK` (`0` or `>=1`, default `0`): Dolby Vision track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
 - `VIDEO_TRACK` (`0` or `>=1`, default `0`): HDR10 Base Layer (BL) video track in source video file, as reported by [`mkvinfo`](https://mkvtoolnix.download/doc/mkvinfo.html).
+
+### Platforms
 
 [Multi-platform builds](https://docs.docker.com/build/building/multi-platform/) are provided for the `linux/amd64` and `linux/arm64` platforms. If running on a different platform, use the [`--platform` option](https://docs.docker.com/reference/cli/docker/container/run/) to emulate a supported platform.
 
