@@ -34,8 +34,8 @@ jobs:
           flavor: |
             latest=${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
           tags: |
-            type=sha
-            type=ref,event=branch
+            type=sha,priority=600
+            type=ref,event=branch,priority=300
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         if: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
