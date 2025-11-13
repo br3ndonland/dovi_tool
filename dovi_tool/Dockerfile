@@ -2,12 +2,6 @@
 FROM alpine:edge
 ARG DOVI_TOOL_VERSION=2.3.1 HDR10PLUS_TOOL_VERSION=1.7.1 TARGETARCH
 
-LABEL org.opencontainers.image.description="Container image that can be used to run dovi_tool"
-LABEL org.opencontainers.image.licenses="CC0-1.0"
-LABEL org.opencontainers.image.source="https://github.com/br3ndonland/dovi_tool"
-LABEL org.opencontainers.image.title="dovi_tool"
-LABEL org.opencontainers.image.url="https://github.com/br3ndonland/dovi_tool/pkgs/container/dovi_tool"
-
 RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix shadow
 RUN groupadd -g 568 apps && useradd --no-log-init -r -u 568 -g apps apps
 RUN <<HEREDOC

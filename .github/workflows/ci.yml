@@ -36,6 +36,12 @@ jobs:
           tags: |
             type=sha,priority=600
             type=ref,event=branch,priority=300
+          labels: |
+            org.opencontainers.image.description=Container image that can be used to run dovi_tool
+            org.opencontainers.image.licenses=CC0-1.0
+            org.opencontainers.image.source=https://github.com/br3ndonland/dovi_tool
+            org.opencontainers.image.title=dovi_tool
+            org.opencontainers.image.url=https://github.com/br3ndonland/dovi_tool/pkgs/container/dovi_tool
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         if: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
