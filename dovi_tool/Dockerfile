@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM alpine:edge
-ARG DOVI_TOOL_VERSION=2.3.1 HDR10PLUS_TOOL_VERSION=1.7.1 TARGETARCH
+ARG DOVI_TOOL_VERSION=2.3.1 HDR10PLUS_TOOL_VERSION=1.7.2 TARGETARCH
 
 RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix shadow
 RUN groupadd -g 568 apps && useradd --no-log-init -r -u 568 -g apps apps
