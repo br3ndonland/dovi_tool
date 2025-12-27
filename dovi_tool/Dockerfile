@@ -20,6 +20,8 @@ tar -xvf /tmp/${HDR10PLUS_TOOL_ARCHIVE} -C /usr/local/bin
 rm -rf /tmp/*
 dovi_tool --version
 hdr10plus_tool --version
+[ "$(dovi_tool --version)" = "dovi_tool ${DOVI_TOOL_VERSION}" ]
+[ "$(hdr10plus_tool --version)" = "hdr10plus_tool ${HDR10PLUS_TOOL_VERSION}" ]
 HEREDOC
 
 COPY --link ./dovi_tool_editor_config.json ./dovi_tool_generator_config.json /config/
