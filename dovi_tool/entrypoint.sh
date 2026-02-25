@@ -94,7 +94,7 @@ summarize_rpu() {
 		printf "\nFailed to summarize RPU info from %s\n" "$1"
 		return 1
 	else
-		printf "%s" "$rpu_summary\n"
+		printf "%s\n" "$rpu_summary"
 		if printf "%s" "$rpu_summary" | grep -q "(FEL)" && [ "$STOP_IF_FEL" -eq 1 ]; then
 			printf "\nFull Enhancement Layer (FEL) detected in %s.\nExiting.\n" "$1"
 			return 1
