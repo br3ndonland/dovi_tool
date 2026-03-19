@@ -60,6 +60,6 @@ run = "shfmt -w ."
 node = "24"
 # registry tools from other backends
 shellcheck = "prefix:0.11"
-shfmt = "prefix:3.12"
+shfmt = "prefix:3.13"
 # non-registry tools from specific backends
 "npm:prettier" = "prefix:3"
