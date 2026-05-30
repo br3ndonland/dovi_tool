@@ -51,7 +51,7 @@ jobs:
         env:
           DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
       - name: Log in to GitHub Container Registry (GHCR)
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         if: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
         with:
           registry: ghcr.io
