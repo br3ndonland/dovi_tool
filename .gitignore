@@ -1,29 +1,18 @@
-# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,visualstudiocode
+## macOS
+##
+## https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 
-### Linux ###
-*~
-
-# temporary files which can be created if a process still has a handle open of a deleted file
-.fuse_hidden*
-
-# KDE directory preferences
-.directory
-
-# Linux trash folder which might appear on any partition or disk
-.Trash-*
-
-# .nfs files are created when an open file is removed but is still being accessed
-.nfs*
-
-### macOS ###
 # General
 .DS_Store
+__MACOSX/
 .AppleDouble
 .LSOverride
-
-# Icon must end with two \r
-Icon
+# Finder custom icons
+# https://github.com/github/gitignore/commit/720975f849ce5424393b6bbb92b038da78d50c57
+# https://github.com/github/gitignore/commit/da36175ff6de9673ad54959fc5d66835755093e8
+# https://github.com/github/gitignore/commit/7b35656e7517d529f183f78c5ec33e3e741bd049
+# https://github.com/github/gitignore/pull/4753
+Icon[^!-~]
 
 # Thumbnails
 ._*
@@ -44,30 +33,41 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-### macOS Patch ###
-# iCloud generated files
-*.icloud
+## mise
+##
+## https://github.com/github/gitignore/blob/main/Global/mise.gitignore
 
-### VisualStudioCode ###
+# https://mise.jdx.dev/configuration.html
+# https://mise.jdx.dev/configuration/environments.html
+.mise.*.local.toml
+.mise.local.toml
+mise.*.local.toml
+mise.local.toml
+.mise/*.local.toml
+mise/*.local.toml
+
+# https://mise.jdx.dev/configuration.html#tool-versions
+#.tool-versions
+
+## VSCode
+##
+## https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
-
-# Local History for Visual Studio Code
-.history/
+!*.code-workspace
 
 # Built Visual Studio Code Extensions
 *.vsix
 
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-.ionide
+## Windows
+##
+## https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
 
-### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
 Thumbs.db:encryptable
@@ -93,11 +93,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,visualstudiocode
-
-# Additional ignores
+## Misc
+##
+##
+[Tt][Oo][Dd][Oo]*
 .copy
 .hevc
 .mkv
 .rpu.bin
-# End of additional ignores
