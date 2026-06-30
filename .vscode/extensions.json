@@ -5,7 +5,7 @@
     "github.vscode-github-actions",
     "mkhl.shfmt",
     "timonwong.shellcheck",
-    "yzhang.markdown-all-in-one"
+    "yzhang.markdown-all-in-one",
   ],
-  "unwantedRecommendations": ["foxundermoon.shell-format"]
+  "unwantedRecommendations": ["foxundermoon.shell-format"],
 }
