@@ -24,48 +24,20 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
-      - name: Set up metadata
-        id: meta
-        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
-        with:
-          images: ghcr.io/${{ github.repository }}
-          flavor: |
-            latest=${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
-          tags: |
-            type=sha,priority=600
-            type=ref,event=branch,priority=300
-          annotations: |
-            org.opencontainers.image.description=Container image that can be used to run dovi_tool
-            org.opencontainers.image.licenses=CC0-1.0
-            org.opencontainers.image.source=https://github.com/br3ndonland/dovi_tool
-            org.opencontainers.image.title=dovi_tool
-            org.opencontainers.image.url=https://github.com/br3ndonland/dovi_tool/pkgs/container/dovi_tool
-          labels: |
-            org.opencontainers.image.description=Container image that can be used to run dovi_tool
-            org.opencontainers.image.licenses=CC0-1.0
-            org.opencontainers.image.source=https://github.com/br3ndonland/dovi_tool
-            org.opencontainers.image.title=dovi_tool
-            org.opencontainers.image.url=https://github.com/br3ndonland/dovi_tool/pkgs/container/dovi_tool
-        env:
-          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
+      - name: Export GitHub Actions Node.js runtime environment variables
+        uses: ./.github/actions/github-runtime
       - name: Log in to GitHub Container Registry (GHCR)
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
-        if: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push container image
-        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
-        with:
-          context: ./dovi_tool
-          file: ./dovi_tool/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.ref_type == 'tag' || github.ref_name == 'main' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          annotations: ${{ steps.meta.outputs.annotations }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        if: github.ref_type == 'tag' || github.ref_name == 'main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build container image
+        env:
+          BUILD_CONTEXT: ./dovi_tool
+          DOCKERFILE: ./dovi_tool/Dockerfile
+          PLATFORMS: linux/amd64,linux/arm64
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
+          IMAGE_NAME: ghcr.io/${{ github.repository }}
+          OCI_DESCRIPTION: Container image that can be used to run dovi_tool
+          OCI_LICENSES: CC0-1.0
+          OCI_URL: https://github.com/${{ github.repository }}/pkgs/container/dovi_tool
+        run: ./scripts/build.sh

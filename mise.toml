@@ -21,7 +21,7 @@ run = "prettier --write ."
 
 [tasks.shellcheck]
 description = "Check shell scripts with ShellCheck"
-run = "shellcheck dovi_tool/entrypoint.sh"
+run = "shellcheck dovi_tool/entrypoint.sh scripts/build.sh"
 
 [tasks."shfmt:check"]
 description = "Check shell script formatting with shfmt"

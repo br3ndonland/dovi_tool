@@ -1,0 +1,5 @@
+name: GitHub Runtime
+description: Export GitHub Actions Node.js JavaScript runtime environment variables for later shell steps.
+runs:
+  using: node24
+  main: index.js

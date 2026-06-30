@@ -116,8 +116,50 @@ mkvmerge -o "${input_filename/.mkv/.dv8.mkv}" --no-video "$input_filename" "${in
 
 ## Development
 
-- Docker container images are built with [GitHub Actions](https://docs.github.com/en/actions) using workflows in [`.github/workflows`](./.github/workflows/ci.yml).
+### Summary
+
+- Docker container images are built with [GitHub Actions](https://docs.github.com/en/actions) using workflows in [`.github/workflows`](./.github/workflows/ci.yml). The GitHub Actions container build runs [`scripts/build.sh`](./scripts/build.sh).
 - [mise-en-place](https://mise.jdx.dev/) is a tool manager. The [`mise.toml` configuration file](https://mise.jdx.dev/configuration.html) is used to install tools needed for the project.
 - Shell scripts are checked with [ShellCheck](https://github.com/koalaman/shellcheck) and formatted with [`shfmt`](https://github.com/mvdan/sh).
 - Web code (JSON, Markdown, YAML, etc.) is formatted with [Prettier](https://prettier.io/).
 - [VSCode settings](https://code.visualstudio.com/docs/getstarted/settings) and [recommended extensions](https://code.visualstudio.com/docs/editor/extension-marketplace#_workspace-recommended-extensions) are included in the `.vscode` directory.
+
+### Local container image builds
+
+The [`build.sh`](scripts/build.sh) script can be used to build Docker container images locally. The [`.env.local`](.env.local) file includes required environment variables for local builds.
+
+```sh
+(source .env.local && ./scripts/build.sh)
+```
+
+The version-controlled `.env.local` file uses shell `export` assignments so it can be sourced before running the build script.
+
+If `PLATFORMS` is unset or empty, the script omits `--platform` and Buildx builds for the builder's default platform. Multi-platform builds require Docker Buildx and platform emulation for whichever target is not native to the host. The default local command above uses the values in `.env.local` to build a runnable single-platform image.
+
+To build a runnable local image, set `LOAD` to `true`, set `PLATFORMS` to one platform, and use manifest-only annotations.
+
+```sh
+export DOCKER_METADATA_ANNOTATIONS_LEVELS="manifest"
+export LOAD="true"
+export PLATFORMS="linux/amd64"
+export TAG_LATEST="true"
+```
+
+Optional environment variables include:
+
+- `BUILD_CONTEXT`: Should be set to `./dovi_tool` to match the layout of this repo. If not set, Docker uses the default `.` (repo root).
+- `DOCKERFILE`: Should be set to `./dovi_tool/Dockerfile` to match the layout of this repo. If not set, Docker uses the default `Dockerfile` in the build context.
+- `DOCKER_METADATA_ANNOTATIONS_LEVELS`: Comma-separated list of Docker Buildx annotation levels, such as `index`, `manifest`, `manifest-descriptor`, and `index-descriptor`. Docker [documents](https://docs.docker.com/build/metadata/annotations/#specify-annotation-level) that "the build must produce the component that you specify, or else the build will fail." For multi-platform builds, `DOCKER_METADATA_ANNOTATIONS_LEVELS="index,manifest"` are commonly used so that annotations are added to both the index and each platform manifest. For single-platform builds, use `DOCKER_METADATA_ANNOTATIONS_LEVELS="manifest"` and do not include `index` or `index-descriptor`. Set to an empty value to skip annotations.
+- `DOCKER_METADATA_SHORT_SHA_LENGTH`: Number of characters to use for short SHA tags like `sha-860c190` (default `7`). The value must not exceed the full `GITHUB_SHA` length.
+- `PLATFORMS`: Comma-separated target platforms. If unset or empty, the script omits `--platform` and Buildx uses the builder's default platform. The GitHub Actions workflow sets this to `linux/amd64,linux/arm64` for multi-platform builds.
+- `LOAD`: To build a runnable local image, set to `true` or `1` to use [Buildx `--load`](https://docs.docker.com/reference/cli/docker/buildx/build/#load) and load the build result into the local Docker image store. Set to `false`, `0`, or leave unset to leave the result in the BuildKit cache, such as for multi-platform cache-only validation builds. The script rejects `LOAD="true"` with multiple platforms because `--load` uses the Docker exporter, and the Docker exporter does not export manifest lists from the temporary `docker-container` builder. Loading multi-platform images locally requires a different Docker setup with an image store that supports multi-platform images, such as the [containerd image store](https://docs.docker.com/desktop/features/containerd/).
+- `OCI_SOURCE`: OCI image source URL. Defaults to `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}`.
+- `OCI_TITLE`: OCI image title. Defaults to the repository name.
+- `TAG_LATEST`: Set to `true` or `1` to tag the image with `${IMAGE_NAME}:latest`. Set to `false` or `0` to skip the `latest` tag. The default matches the push condition, so `latest` is added for `main` and tag builds in CI. Local builds can set `TAG_LATEST="true"` without enabling `--push`.
+- If `GITHUB_SHA` or `RUNNER_TEMP` are not set, the script populates them from `git rev-parse HEAD` and `${TMPDIR:-/tmp}`.
+
+### GitHub Actions container image builds
+
+- The build script writes a lightweight GitHub Actions job summary when `GITHUB_STEP_SUMMARY` is available. The summary includes resolved build inputs, generated tags, labels, annotations, and Buildx metadata. It does not create a [`.dockerbuild` build record](https://docs.docker.com/reference/cli/docker/buildx/history/import/).
+- `PROVENANCE`: Set to `false` or `0` to skip [BuildKit provenance attestations](https://docs.docker.com/build/metadata/attestations/slsa-provenance/). The script defaults to `true` for cache-only and push builds. If `LOAD="true"`, the script automatically skips provenance because, as stated in the Docker [docs](https://docs.docker.com/build/ci/github-actions/attestations/#max-level-provenance), images with attestations must be pushed to a registry instead of loaded to the local runner image store.
+- `GHA_CACHE`: Set to `true` or `1` to use the Docker Buildx GitHub Actions cache backend with `--cache-from "type=gha"` and `--cache-to "type=gha,mode=max"`. Set to `false` or `0` to disable it. The default is `true` on GitHub Actions and `false` elsewhere. When enabled, the script requires `ACTIONS_RUNTIME_TOKEN` and either `ACTIONS_CACHE_URL` or `ACTIONS_RESULTS_URL`, so CI fails instead of silently skipping cache setup. The GitHub Actions workflow uses the local [GitHub runtime action](.github/actions/github-runtime) before running `scripts/build.sh`.

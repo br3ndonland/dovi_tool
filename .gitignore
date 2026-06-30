@@ -96,6 +96,9 @@ $RECYCLE.BIN/
 ## Misc
 ##
 ##
+.env
+.env.*
+!.env.local
 [Tt][Oo][Dd][Oo]*
 .copy
 .hevc
