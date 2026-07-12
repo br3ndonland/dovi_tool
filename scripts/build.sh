@@ -270,6 +270,11 @@ if [[ "${GITHUB_REF_TYPE}" == "tag" || "${GITHUB_REF_NAME}" == "main" ]]; then
 	should_push=true
 fi
 
+if [[ -n "${BUILD_ARGS:-}" ]]; then
+	read -r -a build_args_inputs <<<"${BUILD_ARGS}"
+else
+	build_args_inputs=()
+fi
 build_context="${BUILD_CONTEXT-.}"
 dockerfile="${DOCKERFILE-}"
 platforms="${PLATFORMS-}"
@@ -393,6 +398,8 @@ else
 	printf 'dockerfile=%s\n' "Docker default"
 fi
 printf 'platforms=%s\n' "${platforms}"
+printf 'build_args:\n'
+printf '%s\n' "${build_args_inputs[@]}"
 printf 'docker_metadata_annotations_levels=%s\n' "${annotation_levels:-none}"
 printf 'docker_metadata_short_sha_length=%s\n' "${short_sha_length}"
 printf 'load=%s\n' "${load}"
@@ -428,6 +435,9 @@ build_args=(
 if [[ -n "${platforms}" ]]; then
 	build_args+=(--platform "${platforms}")
 fi
+for build_arg in "${build_args_inputs[@]}"; do
+	build_args+=(--build-arg "${build_arg}")
+done
 
 if [[ "${provenance}" == "true" ]]; then
 	provenance_builder_id="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
