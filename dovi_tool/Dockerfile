@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM alpine:edge
+FROM alpine:3.24
 ARG DOVI_TOOL_VERSION=2.3.2 HDR10PLUS_TOOL_VERSION=1.7.2 TARGETARCH
 
 RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix shadow
