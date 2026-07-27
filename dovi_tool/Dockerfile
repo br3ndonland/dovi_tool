@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM alpine:3.24
 ARG DOVI_TOOL_VERSION=2.3.3 HDR10PLUS_TOOL_VERSION=1.7.2 TARGETARCH
-
 RUN apk add --no-cache --upgrade jq mediainfo mkvtoolnix shadow
 RUN groupadd -g 568 apps && useradd --no-log-init -r -u 568 -g apps apps
 RUN <<HEREDOC
@@ -23,10 +22,7 @@ hdr10plus_tool --version
 [ "$(dovi_tool --version)" = "dovi_tool ${DOVI_TOOL_VERSION}" ]
 [ "$(hdr10plus_tool --version)" = "hdr10plus_tool ${HDR10PLUS_TOOL_VERSION}" ]
 HEREDOC
-
 COPY --link ./dovi_tool_editor_config.json ./dovi_tool_generator_config.json /config/
 COPY --link --chmod=755 ./entrypoint.sh /usr/local/bin/entrypoint.sh
-
 WORKDIR /opt/media
-
 ENTRYPOINT ["entrypoint.sh"]
