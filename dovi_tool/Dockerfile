@@ -3,6 +3,7 @@ FROM alpine:3.24
 ARG DOVI_TOOL_VERSION=2.3.4 HDR10PLUS_TOOL_VERSION=1.7.2 TARGETARCH
 RUN apk add --no-cache --upgrade bash jq mediainfo mkvtoolnix shadow
 RUN groupadd -g 568 apps && useradd --no-log-init -r -u 568 -g apps apps
+RUN mkdir -m 770 -p "/home/apps" && chown apps:apps "/home/apps"
 RUN <<HEREDOC
 set -e -o pipefail
 case $TARGETARCH in
